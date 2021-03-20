@@ -6,34 +6,39 @@ import io
 from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.common.exceptions import NoSuchElementException
 import csv
+from csv import reader
+from csv import DictReader
 
 MAIN_URL = 'https://wordpress.com/posts/vrpreservation.org/'
 MY_USERNAME = os.environ['WORDPRESS_USERNAME']
 MY_PASSWORD = os.environ['WORDPRESS_PASSWORD']
+CSV_PATH = './test.csv'
+
+driver = webdriver.Chrome('chromedriver')
+driver.implicitly_wait(10)
 
 # login
-driver = webdriver.Chrome('chromedriver')
 driver.get(MAIN_URL)
-time.sleep(5)
 driver.find_element_by_id("usernameOrEmail").send_keys(MY_USERNAME)
 driver.find_element_by_class_name("is-primary").click()
-time.sleep(1)
 driver.find_element_by_id("password").send_keys(MY_PASSWORD)
 driver.find_element_by_class_name("is-primary").click()
 
-""" for url in page_urls:
-driver.get(url)
-try:
-    iframe = driver.find_element_by_id('mp-iframe')
-    tour_url = iframe.get_attribute('src')
-    header = driver.find_element_by_class_name('entry-header')
-    tour_title = header.text
-    if (tour_url != None) and (tour_title != ""):
-        tours.append([tour_title, tour_url])
-except NoSuchElementException:
-    print("mp-iframe not found at " + url)
+time.sleep(3)
 
-with open('urls.csv', mode='w', encoding="utf-8") as csv_file:
-writer = csv.DictWriter(csv_file, fieldnames=['name', 'url'], lineterminator = '\n')
-for tour in tours:
-    writer.writerow({'name': tour[0], 'url': tour[1]}) """
+# go to posts page
+driver.find_element_by_class_name("is-primary").click()
+
+time.sleep(10)
+
+# create post
+driver.find_element_by_id("post-title-0").send_keys("Automated Post")
+driver.find_element_by_class_name("block-editor-default-block-appender__content").click()
+driver.find_element_by_class_name("block-editor-rich-text__editable").send_keys("This post was create using an automated post creation tool!")
+driver.find_element_by_class_name("editor-post-publish-panel__toggle").click()
+driver.find_element_by_class_name("editor-post-publish-button").click()
+
+""" with open(CSV_PATH, 'r') as read_obj:
+    csv_reader = DictReader(read_obj)
+    for row in csv_reader:
+        print(row['title']) """
