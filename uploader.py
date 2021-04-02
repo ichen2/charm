@@ -15,30 +15,38 @@ MY_PASSWORD = os.environ['WORDPRESS_PASSWORD']
 CSV_PATH = './test.csv'
 
 driver = webdriver.Chrome('chromedriver')
-driver.implicitly_wait(10)
+driver.implicitly_wait(20)
 
-# login
-driver.get(MAIN_URL)
-driver.find_element_by_id("usernameOrEmail").send_keys(MY_USERNAME)
-driver.find_element_by_class_name("is-primary").click()
-driver.find_element_by_id("password").send_keys(MY_PASSWORD)
-driver.find_element_by_class_name("is-primary").click()
+def login():
+    driver.get(MAIN_URL)
+    driver.find_element_by_id("usernameOrEmail").send_keys(MY_USERNAME)
+    driver.find_element_by_class_name("is-primary").click()
+    driver.find_element_by_id("password").send_keys(MY_PASSWORD)
+    driver.find_element_by_class_name("is-primary").click()
 
-time.sleep(3)
+def createPost(title, description, link):
+    time.sleep(3)
+    driver.get("https://vrpreservation.org/wp-admin/post-new.php?calypsoify=1&block-editor=1&frame-nonce=1617422855%3A200109096%3Ac983ca2a0681a067948225ecaffe0d1e&origin=https%3A%2F%2Fwordpress.com&environment-id=production&support_user=&_support_token=")
+    #driver.find_element_by_class_name("is-primary").click()
+    time.sleep(10)
+    #driver.find_element_by_class_name("is-loaded")
+    driver.find_element_by_id("post-title-0").send_keys(title)
+    driver.find_element_by_class_name("block-editor-default-block-appender__content").click()
+    driver.find_element_by_class_name("block-editor-rich-text__editable").send_keys("/tour\n")
+    driver.find_element_by_id("inspector-text-control-1").send_keys(link)
+    driver.find_element_by_id("inspector-text-control-2").send_keys(description)
 
-# go to posts page
-driver.find_element_by_class_name("is-primary").click()
+    # publish post
+    driver.find_element_by_class_name("editor-post-publish-panel__toggle").click()
+    driver.find_element_by_class_name("editor-post-publish-button").click()
+    time.sleep(3)
 
-time.sleep(10)
+#login()
+#createPost("Automated Post", "This is an automated post", "https://www.google.com")
 
-# create post
-driver.find_element_by_id("post-title-0").send_keys("Automated Post")
-driver.find_element_by_class_name("block-editor-default-block-appender__content").click()
-driver.find_element_by_class_name("block-editor-rich-text__editable").send_keys("This post was create using an automated post creation tool!")
-driver.find_element_by_class_name("editor-post-publish-panel__toggle").click()
-driver.find_element_by_class_name("editor-post-publish-button").click()
-
-""" with open(CSV_PATH, 'r') as read_obj:
+login()
+with open(CSV_PATH, 'r') as read_obj:
     csv_reader = DictReader(read_obj)
     for row in csv_reader:
-        print(row['title']) """
+        print('creating post...')
+        createPost(row['Title'], row['Site Description'], row['Link'])
